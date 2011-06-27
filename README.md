@@ -8,8 +8,10 @@ Installation
 ------------
 
 ```bash
-apt-get install libapache2-mod-php5 dpkg dpkg-dev
+apt-get install libapache2-mod-php5 dpkg dpkg-dev php-pear
 wget http://silex-project.org/get/silex.phar -O /var/www/silex.phar
+pear channel-discover pear.pxxo.net
+pear install pxxo/atomwriter
 git clone git://github.com/kerphi/RESTdeb.git /tmp/RESTdeb
 mv -f /tmp/RESTdeb/* /var/www/
 mv -f /tmp/RESTdeb/.* /var/www/
