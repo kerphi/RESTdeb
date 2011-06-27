@@ -17,8 +17,3 @@ mv -f /tmp/RESTdeb/* /var/www/
 mv -f /tmp/RESTdeb/.* /var/www/
 echo "<?php \$GLOBALS['title'] = 'My debian repository';" > /var/www/config.php
 ```
-
-TODO
-----
-
-* Add an Atom feed for packages browsing on the repository
