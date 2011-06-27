@@ -35,7 +35,7 @@ $app->post('/', function() use ($app) {
     // create the package
     $debpath = '/var/www/debian/'.$name;
     $ret = file_put_contents($debpath, $debbin);
-    unlink($debpath); // cleanup
+    unlink('/tmp/debbin'); // cleanup
     if ($ret === FALSE) {
         return new Response('Unable to write on '.$debpath, 507);
     }
@@ -48,8 +48,7 @@ $app->post('/', function() use ($app) {
         return new Response(implode("\n", $output), 500);
     }
 
-    $command31 = 'rm -f /var/www/debian/Packages.gz';
-    $o = exec($command31, $output, $ret);
+    unlink('/var/www/debian/Packages.gz');
     $command32 = '/bin/gzip /var/www/debian/Packages';
     $output = array();
     $o = exec($command32, $output, $ret);
