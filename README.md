@@ -17,3 +17,12 @@ mv -f /tmp/RESTdeb/* /var/www/
 mv -f /tmp/RESTdeb/.* /var/www/
 echo "<?php \$GLOBALS['title'] = 'My debian repository';" > /var/www/config.php
 ```
+
+Usage
+-----
+
+This example assumes that your HTTP server where is located your debian repository is http://myserver/debian/ and that this server is protected with login and password. mypackage.deb is the package you wish to deploy on this repository.
+
+```bash
+cat mypackage.deb | curl -u login:password -X POST --data-binary @- http://myserver/debian/
+```
