@@ -35,6 +35,7 @@ $app->post('/', function() use ($app) {
     // create the package
     $debpath = '/var/www/debian/'.$name;
     $ret = file_put_contents($debpath, $debbin);
+    unlink($debpath); // cleanup
     if ($ret === FALSE) {
         return new Response('Unable to write on '.$debpath, 507);
     }
