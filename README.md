@@ -10,9 +10,10 @@ Installation
 ```bash
 apt-get install libapache2-mod-php5 dpkg dpkg-dev
 wget http://silex-project.org/get/silex.phar -O /var/www/silex.phar
-git clone git://github.com/kerphi/RESTdeb.git /tmp/RESTdeb
-mv -f /tmp/RESTdeb/* /var/www/
-mv -f /tmp/RESTdeb/.* /var/www/
+cd /var/www
+git init
+git remote add origin git://github.com/kerphi/RESTdeb.git
+git pull origin master
 echo "<?php \$GLOBALS['title'] = 'My debian repository';" > /var/www/config.php
 ```
 
