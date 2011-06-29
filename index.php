@@ -2,14 +2,43 @@
 
 require_once __DIR__.'/config.php'; 
 require_once __DIR__.'/silex.phar'; 
+use Symfony\Component\HttpFoundation\Response;
 
 $app = new Silex\Application(); 
 
 $app->get('/', function() { 
-    return $GLOBALS['title']; 
+
+    $deblist = glob('/var/www/debian/*.deb');
+
+    $xmlWriter = new XMLWriter();
+    $xmlWriter->openUri('php://output');
+    $xmlWriter->setIndent(true);
+    include_once("ATOMWriter.php");
+    $f = new ATOMWriter($xmlWriter, true);
+    $f->startFeed('urn:restdeb')
+        ->writeStartIndex(1)
+        ->writeItemsPerPage(10)
+        ->writeTotalResults(count($deblist))
+        ->writeTitle($GLOBALS['title']);
+
+    foreach($deblist as $deb) {
+        $updatedate = filemtime($deb);
+        $debname    = basename($deb);
+        $f->startEntry("urn:restdeb:".$debname, $updatedate)
+            ->writeTitle($debname)
+            ->writeLink($debname, 'application/octet-stream')
+            ->endEntry();
+        $f->flush();
+    }
+
+    $f->endFeed();
+    $f->flush();  
+
+    $r = new Response('', 200);
+    $r->headers->set('Content-Type', 'application/atom+xml; charset=UTF-8');
+    return $r; 
 }); 
 
-use Symfony\Component\HttpFoundation\Response;
 $app->post('/', function() use ($app) { 
     $request = $app['request'];
  
@@ -35,6 +64,7 @@ $app->post('/', function() use ($app) {
     // create the package
     $debpath = '/var/www/debian/'.$name;
     $ret = file_put_contents($debpath, $debbin);
+    unlink('/tmp/debbin'); // cleanup
     if ($ret === FALSE) {
         return new Response('Unable to write on '.$debpath, 507);
     }
@@ -47,8 +77,7 @@ $app->post('/', function() use ($app) {
         return new Response(implode("\n", $output), 500);
     }
 
-    $command31 = 'rm -f /var/www/debian/Packages.gz';
-    $o = exec($command31, $output, $ret);
+    unlink('/var/www/debian/Packages.gz');
     $command32 = '/bin/gzip /var/www/debian/Packages';
     $output = array();
     $o = exec($command32, $output, $ret);

@@ -8,8 +8,10 @@ Installation
 ------------
 
 ```bash
-apt-get install libapache2-mod-php5 dpkg dpkg-dev
+apt-get install apache2 libapache2-mod-php5 dpkg dpkg-dev php-pear
 wget http://silex-project.org/get/silex.phar -O /var/www/silex.phar
+pear channel-discover pear.pxxo.net
+pear install pxxo/atomwriter
 cd /var/www
 git init
 git remote add origin git://github.com/kerphi/RESTdeb.git
@@ -17,7 +19,11 @@ git pull origin master
 echo "<?php \$GLOBALS['title'] = 'My debian repository';" > /var/www/config.php
 ```
 
-TODO
-----
+Usage
+-----
 
-* Add an Atom feed for packages browsing on the repository
+This example assumes that your HTTP server where is located your debian repository is http://myserver/debian/ and that this server is protected with login and password. mypackage.deb is the package you wish to deploy on this repository.
+
+```bash
+cat mypackage.deb | curl -u login:password -X POST --data-binary @- http://myserver/debian/
+```
