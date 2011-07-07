@@ -71,7 +71,7 @@ $app->post('/', function() use ($app) {
 
     // reindex the debian repository
     $output = array();
-    $command2  = '/usr/bin/dpkg-scanpackages /var/www/debian > /var/www/debian/Packages';
+    $command2  = 'cd /var/www ; /usr/bin/dpkg-scanpackages debian /dev/null > /var/www/debian/Packages';
     $o = exec($command2, $output,  $ret);
     if ($ret != 0) {
         return new Response(implode("\n", $output), 500);
