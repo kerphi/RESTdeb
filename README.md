@@ -8,13 +8,15 @@ Installation
 ------------
 
 ```bash
-apt-get install libapache2-mod-php5 dpkg dpkg-dev php-pear
+apt-get install apache2 libapache2-mod-php5 dpkg dpkg-dev php-pear
+echo 'suhosin.executor.include.whitelist="phar"' > /etc/php5/apache2/conf.d/restdeb.ini
 wget http://silex-project.org/get/silex.phar -O /var/www/silex.phar
 pear channel-discover pear.pxxo.net
 pear install pxxo/atomwriter
-git clone git://github.com/kerphi/RESTdeb.git /tmp/RESTdeb
-mv -f /tmp/RESTdeb/* /var/www/
-mv -f /tmp/RESTdeb/.* /var/www/
+cd /var/www
+git init
+git remote add origin git://github.com/kerphi/RESTdeb.git
+git pull origin master
 echo "<?php \$GLOBALS['title'] = 'My debian repository';" > /var/www/config.php
 ```
 
