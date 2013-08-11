@@ -69,6 +69,14 @@ $app->post('/', function() use ($app) {
         return new Response('Unable to write on '.$debpath, 507);
     }
 
+    // sign the package
+    $output = array();
+    $command12 = 'sudo dpkg-sig --sign builder '.$debpath.' 2>&1';
+    $o = exec($command12, $output,  $ret12);
+    if ($ret12 != 0) {
+        return new Response(implode("\n", $output), 400);
+    }
+
     // reindex the debian repository
     $output = array();
     $command2  = 'cd /var/www ; /usr/bin/dpkg-scanpackages debian /dev/null > /var/www/debian/Packages';
