@@ -56,19 +56,13 @@ $app->post('/', function() use ($app) {
         return new Response(implode("\n", $output), 415);
     }
 
-    // build debian deb filename
+    // extract information from the debian deb filename
     $package = exec('dpkg-deb -f '.$debpath.' package', $output,  $ret);
     $version = exec('dpkg-deb -f '.$debpath.' version', $output,  $ret);
     $archi   = exec('dpkg-deb -f '.$debpath.' architecture', $output,  $ret);
     $name    = $package.'-'.$version.'_'.$archi.'.deb';
-
-    // create the package
-    $debpath = '/var/www/debian/'.$name;
-    $ret = file_put_contents($debpath, $debbin);
-    unlink($debpath); // cleanup
-    if ($ret === FALSE) {
-        return new Response('Unable to write on '.$debpath, 507);
-    }
+    rename($debpath, '/tmp/'.$name);
+    $debpath = '/tmp/'.$name;
 
     // sign the package
     $output = array();
@@ -78,18 +72,11 @@ $app->post('/', function() use ($app) {
         return new Response(implode("\n", $output), 400);
     }
 
-    // reindex the debian repository
+    // add the package to the repository
+    $reppath = $GLOBALS['reppath'];
     $output = array();
-    $command2  = 'cd /var/www ; /usr/bin/dpkg-scanpackages debian /dev/null > /var/www/debian/Packages';
-    $o = exec($command2, $output,  $ret);
-    if ($ret != 0) {
-        return new Response(implode("\n", $output), 500);
-    }
-
-    unlink('/var/www/debian/Packages.gz');
-    $command32 = '/bin/gzip /var/www/debian/Packages';
-    $output = array();
-    $o = exec($command32, $output, $ret);
+    $command  = 'cd '.$reppath.' ; sudo reprepro --ask-passphrase -Vb . includedeb '.$GLOBALS['osrelease'].' '.$debpath;
+    $o = exec($command, $output,  $ret);
     if ($ret != 0) {
         return new Response(implode("\n", $output), 500);
     }
