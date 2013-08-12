@@ -47,24 +47,25 @@ $app->post('/', function() use ($app) {
     if (!$debbin) {
         return new Response("Input data is empty", 400);
     }
-    file_put_contents('/tmp/debbin', $debbin);
+    $debpath = '/tmp/'.uniqid().'.deb';
+    file_put_contents($debpath, $debbin);
     $output = array();
-    $command1 = 'dpkg-deb -f /tmp/debbin 2>&1';
+    $command1 = 'dpkg-deb -f '.$debpath.' 2>&1';
     $o = exec($command1, $output,  $ret1);
     if ($ret1 != 0) {
         return new Response(implode("\n", $output), 415);
     }
 
     // build debian deb filename
-    $package = exec('dpkg-deb -f /tmp/debbin package', $output,  $ret);
-    $version = exec('dpkg-deb -f /tmp/debbin version', $output,  $ret);
-    $archi   = exec('dpkg-deb -f /tmp/debbin architecture', $output,  $ret);
+    $package = exec('dpkg-deb -f '.$debpath.' package', $output,  $ret);
+    $version = exec('dpkg-deb -f '.$debpath.' version', $output,  $ret);
+    $archi   = exec('dpkg-deb -f '.$debpath.' architecture', $output,  $ret);
     $name    = $package.'-'.$version.'_'.$archi.'.deb';
 
     // create the package
     $debpath = '/var/www/debian/'.$name;
     $ret = file_put_contents($debpath, $debbin);
-    unlink('/tmp/debbin'); // cleanup
+    unlink($debpath); // cleanup
     if ($ret === FALSE) {
         return new Response('Unable to write on '.$debpath, 507);
     }
